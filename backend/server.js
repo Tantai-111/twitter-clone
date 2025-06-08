@@ -1,6 +1,7 @@
 import express from "express";
 import authRouters from "./routes/auth.routes.js"
 import userRouters from "./routes/user.routes.js"
+import postRouters from "./routes/post.routes.js"
 import dotenv from "dotenv"
 import connectMangoDB from "./db/connectMondoDB.js";
 import cookieParser from "cookie-parser";
@@ -24,6 +25,7 @@ app.use(cookieParser())
 
 app.use("/api/auth", authRouters)
 app.use("/api/users", userRouters)
+app.use("/api/posts", postRouters)
 
 
 app.listen(PORT, () => {
