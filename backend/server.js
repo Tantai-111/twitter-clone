@@ -7,6 +7,7 @@ import dotenv from "dotenv"
 import connectMangoDB from "./db/connectMondoDB.js";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
+import path from "path"
 
 dotenv.config()
 
@@ -18,6 +19,7 @@ cloudinary.config({
 
 const app = express()
 const PORT = process.env.PORT || 5000
+const __dirname = path.resolve()
 
 app.use(express.json({limit:"5mb"}))
 app.use(express.urlencoded({extended: true}))
@@ -29,6 +31,16 @@ app.use("/api/users", userRouters)
 app.use("/api/posts", postRouters)
 app.use("/api/notifications", notificationRoutes)
 
+if (process.env.NODE_ENV === "production") {
+	app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+	app.get("*", (req, res) => {
+		res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+	});
+}
+
+console.log("Serving static files from:", path.join(__dirname, "/frontend/dist"));
+console.log("NODE_ENV:", process.env.NODE_ENV);
 
 app.listen(PORT, () => {
     console.log(`server is running on port ${PORT}`)
