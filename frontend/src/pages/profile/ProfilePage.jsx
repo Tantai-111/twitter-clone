@@ -15,6 +15,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatMemberSinceDate } from "../../utils/date";
 import useFollow from "../../hooks/useFollow"
 import toast from "react-hot-toast";
+import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
@@ -46,36 +47,9 @@ const ProfilePage = () => {
 		}
 	})
 
-	const {mutate: updateProfile, isPending:isUpdatingProfile} = useMutation({
-		mutationFn: async () => {
-			try {
-				const res = await fetch(`/api/users/update`, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						coverImg,
-						profileImg
-					})
-				})
-				const data = await res.json();
-				if(!res.ok) {
-					throw new Error(data.error || "Something went wrong")
-				}
-				return data
-			} catch (error) {
-				throw new Error(error.message)
-			}
-		},
-		onSuccess:() => {
-			toast.success("Profile update successfully")
-			Promise.all([
-				queryClient.invalidateQueries({queryKey: ["authUser"]}),
-				queryClient.invalidateQueries({queryKey: ["userProfile"]})
-			])
-		}
-	})
+	const {updateProfile, isUpdatingProfile} = useUpdateUserProfile({
+		coverImg,profileImg
+	});
 
 	const isMyProfile = authUser._id === user?._id
 	const memberSinceDate = formatMemberSinceDate(user?.createdAt)
